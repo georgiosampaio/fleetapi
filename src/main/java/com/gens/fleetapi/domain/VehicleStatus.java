@@ -1,4 +1,8 @@
 package com.gens.fleetapi.domain;
 
-public class VehicleStatus {
+public enum VehicleStatus {
+    AVAILABLE,
+    IN_TRANSIT,
+    MAINTENANCE,
+    INACTIVE
 }
