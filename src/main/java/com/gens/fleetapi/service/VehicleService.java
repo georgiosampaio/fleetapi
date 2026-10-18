@@ -4,6 +4,7 @@ import com.gens.fleetapi.domain.Vehicle;
 import com.gens.fleetapi.domain.VehicleStatus;
 import com.gens.fleetapi.dto.request.VehicleRequestDto;
 import com.gens.fleetapi.dto.response.VehicleResponseDto;
+import com.gens.fleetapi.infra.exception.ResourceNotFoundException;
 import com.gens.fleetapi.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,7 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public VehicleResponseDto getVehicleById(Long id) {
         Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Vehicle not found with ID: " + id));
+                () -> new ResourceNotFoundException("Veículo",id));
         return VehicleResponseDto.fromEntity(vehicle);
     }
 
