@@ -20,30 +20,44 @@ public class VehicleController {
 
     @PostMapping
     public ResponseEntity<VehicleResponseDto> create(@Valid @RequestBody VehicleRequestDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(vehicleService.createVehicle(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(vehicleService.create(dto));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<VehicleResponseDto> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(vehicleService.getVehicleById(id));
+        return ResponseEntity.ok(vehicleService.getById(id));
     }
 
     @GetMapping
     public ResponseEntity<Page<VehicleResponseDto>> getAllVehicles(Pageable pageable) {
-        return ResponseEntity.ok(vehicleService.getAllVehicles(pageable));
+        return ResponseEntity.ok(vehicleService.getAll(pageable));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponseDto> update(
-            @PathVariable Long id, @Valid @RequestBody VehicleRequestDto dto){
-        return ResponseEntity.ok(vehicleService.updateVehicle(id, dto));
+            @PathVariable Long id, @Valid @RequestBody VehicleRequestDto dto) {
+        return ResponseEntity.ok(vehicleService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        vehicleService.deleteVehicle(id);
+        vehicleService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    // 💡 Novos Endpoints REST para as Transições de Estado de Negócio
+    @PatchMapping("/{id}/in-transit")
+    public ResponseEntity<VehicleResponseDto> markAsInTransit(@PathVariable Long id) {
+        return ResponseEntity.ok(vehicleService.markAsInTransit(id));
+    }
 
+    @PatchMapping("/{id}/maintenance")
+    public ResponseEntity<VehicleResponseDto> markAsInMaintenance(@PathVariable Long id) {
+        return ResponseEntity.ok(vehicleService.markAsInMaintenance(id));
+    }
+
+    @PatchMapping("/{id}/available")
+    public ResponseEntity<VehicleResponseDto> markAsAvailable(@PathVariable Long id) {
+        return ResponseEntity.ok(vehicleService.markAsAvailable(id));
+    }
 }

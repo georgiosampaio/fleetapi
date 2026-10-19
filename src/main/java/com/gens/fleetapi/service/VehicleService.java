@@ -1,9 +1,9 @@
 package com.gens.fleetapi.service;
 
 import com.gens.fleetapi.domain.Vehicle;
-import com.gens.fleetapi.domain.VehicleStatus;
 import com.gens.fleetapi.dto.request.VehicleRequestDto;
 import com.gens.fleetapi.dto.response.VehicleResponseDto;
+import com.gens.fleetapi.infra.exception.DuplicateResourceException;
 import com.gens.fleetapi.infra.exception.ResourceNotFoundException;
 import com.gens.fleetapi.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,58 +15,89 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class VehicleService {
+
     private final VehicleRepository vehicleRepository;
 
     @Transactional
-    public VehicleResponseDto createVehicle(VehicleRequestDto vehicleRequestDTO) {
+    public VehicleResponseDto create(VehicleRequestDto requestDto) {
+        String licensePlate = Vehicle.normalizeLicensePlate(requestDto.licensePlate());
+        checkDuplicateLicensePlate(licensePlate);
 
-        if (vehicleRepository.existsByLicensePlate(vehicleRequestDTO.licensePlate())) {
-            throw new IllegalArgumentException("Vehicle with license plate "
-                    + vehicleRequestDTO.licensePlate() + " already exists.");
-        }
-        Vehicle vehicle = new Vehicle();
-
-        vehicle.setModel(vehicleRequestDTO.model());
-        vehicle.setManufactureYear(vehicleRequestDTO.manufactureYear());
-        vehicle.setMileage(vehicleRequestDTO.mileage());
-        vehicle.setStatus(VehicleStatus.AVAILABLE);
+        Vehicle vehicle = new Vehicle(
+                licensePlate,
+                requestDto.brand(),
+                requestDto.model(),
+                requestDto.manufactureYear(),
+                requestDto.mileage()
+        );
 
         return VehicleResponseDto.fromEntity(vehicleRepository.save(vehicle));
     }
 
     @Transactional(readOnly = true)
-    public VehicleResponseDto getVehicleById(Long id) {
-        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Veículo",id));
-        return VehicleResponseDto.fromEntity(vehicle);
+    public VehicleResponseDto getById(Long id) {
+        return VehicleResponseDto.fromEntity(findOrThrow(id));
     }
 
     @Transactional(readOnly = true)
-    public Page<VehicleResponseDto> getAllVehicles(Pageable pageable) {
+    public Page<VehicleResponseDto> getAll(Pageable pageable) {
         return vehicleRepository.findAll(pageable).map(VehicleResponseDto::fromEntity);
     }
 
     @Transactional
-    public VehicleResponseDto updateVehicle(Long id, VehicleRequestDto vehicleRequestDto) {
-        Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found with ID: " + id));
+    public VehicleResponseDto update(Long id, VehicleRequestDto requestDto) {
+        Vehicle vehicle = findOrThrow(id);
 
-        vehicle.setLicensePlate(vehicleRequestDto.licensePlate());
-        vehicle.setBrand(vehicleRequestDto.brand());
-        vehicle.setModel(vehicleRequestDto.model());
-        vehicle.setManufactureYear(vehicleRequestDto.manufactureYear());
-        vehicle.setMileage(vehicleRequestDto.mileage());
+        String licensePlate = Vehicle.normalizeLicensePlate(requestDto.licensePlate());
+        if (!licensePlate.equals(vehicle.getLicensePlate())) {
+            checkDuplicateLicensePlate(licensePlate);
+        }
 
-        return VehicleResponseDto.fromEntity(vehicleRepository.save(vehicle));
+        vehicle.updateDetails(
+                licensePlate,
+                requestDto.brand(),
+                requestDto.model(),
+                requestDto.manufactureYear(),
+                requestDto.mileage()
+        );
+
+        return VehicleResponseDto.fromEntity(vehicle);
     }
 
     @Transactional
-    public void deleteVehicle(Long id) {
-        if (vehicleRepository.existsById(id)) {
-            throw new IllegalArgumentException("Vehicle not found with ID: " + id);
-        }
-        vehicleRepository.deleteById(id);
+    public VehicleResponseDto markAsInTransit(Long id) {
+        Vehicle vehicle = findOrThrow(id);
+        vehicle.markAsInTransit();
+        return VehicleResponseDto.fromEntity(vehicle);
     }
 
+    @Transactional
+    public VehicleResponseDto markAsInMaintenance(Long id) {
+        Vehicle vehicle = findOrThrow(id);
+        vehicle.markAsInMaintenance();
+        return VehicleResponseDto.fromEntity(vehicle);
+    }
 
+    @Transactional
+    public VehicleResponseDto markAsAvailable(Long id) {
+        Vehicle vehicle = findOrThrow(id);
+        vehicle.markAsAvailable();
+        return VehicleResponseDto.fromEntity(vehicle);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        vehicleRepository.delete(findOrThrow(id));
+    }
+
+    private Vehicle findOrThrow(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehícle", id));
+    }
+
+    private void checkDuplicateLicensePlate(String licensePlate) {
+        if (vehicleRepository.existsByLicensePlate(licensePlate)) {
+            throw new DuplicateResourceException("The Licence Plate" + licensePlate + " already in use.");
+        }
+    }
 }
