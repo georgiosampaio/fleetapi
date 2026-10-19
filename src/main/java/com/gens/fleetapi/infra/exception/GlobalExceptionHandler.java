@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
                 new StandardError(
                         Instant.now(),
                         HttpStatus.NOT_FOUND.value(),
-                        "Recurso não encontrado",
+                        "Resource not found",
                         e.getMessage(),
                         request.getRequestURI()
                 )
@@ -32,13 +32,13 @@ public class GlobalExceptionHandler {
         String errorMessage = e.getBindingResult().getFieldErrors().stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .reduce((m1, m2) -> m1 + ", " + m2)
-                .orElse("Erro de validação nos campos.");
+                .orElse("Validation error in the fields.");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new StandardError(
                         Instant.now(),
                         HttpStatus.BAD_REQUEST.value(),
-                        "Erro de validação",
+                        "Validation error",
                         errorMessage,
                         request.getRequestURI()
                 )
@@ -52,9 +52,48 @@ public class GlobalExceptionHandler {
                 new StandardError(
                 Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Erro interno no servidor",
-                "Ocorreu um erro inesperado no sistema. Por favor, tente novamente mais tarde.",
+                "Internal server error",
+                "An unexpected system error occurred. Please try again later.",
                 request.getRequestURI()
         ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<StandardError> illegalArgument(IllegalArgumentException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Invalid request (Invariant violation)",
+                        e.getMessage(),
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<StandardError> illegalState(IllegalStateException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.CONFLICT.value(),
+                        "Business State Conflict",
+                        e.getMessage(),
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<StandardError> duplicateResource(DuplicateResourceException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.CONFLICT.value(),
+                        "Duplicate Feature",
+                        e.getMessage(),
+                        request.getRequestURI()
+                )
+        );
     }
 }

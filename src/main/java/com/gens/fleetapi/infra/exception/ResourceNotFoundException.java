@@ -6,13 +6,13 @@ public class ResourceNotFoundException extends RuntimeException {
     private final transient Object resourceId;
 
     public ResourceNotFoundException(String resourceName, Object resourceId) {
-        super(String.format("%s não encontrado com ID: %s", resourceName, resourceId));
+        super(String.format("%s not found with ID: %s", resourceName, resourceId));
         this.resourceName = resourceName;
         this.resourceId = resourceId;
     }
 
     public ResourceNotFoundException(String resourceName, Object resourceId, Throwable cause) {
-        super(String.format("%s não encontrado com ID: %s", resourceName, resourceId), cause);
+        super(String.format("%s not found with ID: %s", resourceName, resourceId), cause);
         this.resourceName = resourceName;
         this.resourceId = resourceId;
     }
