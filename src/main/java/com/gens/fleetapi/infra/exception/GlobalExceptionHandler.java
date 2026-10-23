@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<StandardError> validation(MethodArgumentNotValidException e, HttpServletRequest request) {
 
         String errorMessage = e.getBindingResult().getFieldErrors().stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .reduce((m1, m2) -> m1 + ", " + m2)
                 .orElse("Validation error in the fields.");
 
