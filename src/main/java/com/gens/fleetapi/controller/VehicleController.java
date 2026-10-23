@@ -45,7 +45,6 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
-    // 💡 Novos Endpoints REST para as Transições de Estado de Negócio
     @PatchMapping("/{id}/in-transit")
     public ResponseEntity<VehicleResponseDto> markAsInTransit(@PathVariable Long id) {
         return ResponseEntity.ok(vehicleService.markAsInTransit(id));
