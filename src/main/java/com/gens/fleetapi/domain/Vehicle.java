@@ -14,21 +14,21 @@ import java.util.regex.Pattern;
 @Table(name = "tb_vehicles")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Vehicle {
 
     private static final int MIN_MANUFACTURE_YEAR = 1900;
     private static final int FUTURE_YEAR_TOLERANCE = 1;
-    private static final int MAX_LICENSE_PLATE_LENGTH = 10;
+    private static final int LICENSE_PLATE_LENGTH = 7;
     private static final int MAX_TEXT_LENGTH = 50;
     private static final Pattern PLATE_SEPARATORS = Pattern.compile("[\\s-]");
-    private static final Pattern PLATE_FORMAT = Pattern.compile("[A-Z0-9]+");
-
+    private static final Pattern PLATE_FORMAT = Pattern.compile("[A-Z]{3}[0-9][A-Z0-9][0-9]{2}");
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, unique = true, length = MAX_LICENSE_PLATE_LENGTH)
+    @Column(nullable = false, unique = true, length = LICENSE_PLATE_LENGTH)
     private String licensePlate;
 
     @Column(nullable = false, length = MAX_TEXT_LENGTH)
@@ -77,7 +77,7 @@ public class Vehicle {
         this.status = VehicleStatus.AVAILABLE;
     }
 
-    public static String normalizeLicensePlate(String licensePlate) {
+       public static String normalizeLicensePlate(String licensePlate) {
         if (licensePlate == null) {
             throw new IllegalArgumentException("License plate is not optional.");
         }
@@ -87,11 +87,9 @@ public class Vehicle {
             throw new IllegalArgumentException("License plate is not optional.");
         }
         if (!PLATE_FORMAT.matcher(normalized).matches()) {
-            throw new IllegalArgumentException("The license plate must contain only letters (A-Z) and numbers.");
+            throw new IllegalArgumentException("The license plate must follow the Brazilian format (ABC1234 or ABC1D23).");
         }
-        if (normalized.length() > MAX_LICENSE_PLATE_LENGTH) {
-            throw new IllegalArgumentException("Thelicense plate cannot exceed " + MAX_LICENSE_PLATE_LENGTH + " characters.");
-        }
+
         return normalized;
     }
 
