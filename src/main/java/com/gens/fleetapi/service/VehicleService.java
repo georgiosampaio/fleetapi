@@ -97,7 +97,7 @@ public class VehicleService {
 
     private void checkDuplicateLicensePlate(String licensePlate) {
         if (vehicleRepository.existsByLicensePlate(licensePlate)) {
-            throw new DuplicateResourceException("The Licence Plate" + licensePlate + " already in use.");
+            throw new DuplicateResourceException("The Licence Plate " + licensePlate + " already in use.");
         }
     }
 }
