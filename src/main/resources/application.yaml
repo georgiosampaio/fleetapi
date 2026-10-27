@@ -1,27 +1,27 @@
-  server:
-    port: 8080
+server:
+  port: 8080
 
-  spring:
-    application:
-      name: fleetapi
+spring:
+  application:
+    name: fleetapi
 
-    datasource:
-      url: jdbc:postgresql://localhost:5432/db_fleetapi
-      username: ${DB_USERNAME:postgres}
-      password: ${DB_PASSWORD}
-      driver-class-name: org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_fleetapi
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
       hibernate:
-        ddl-auto: update
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
-      open-in-view: false
+        format_sql: true
+    open-in-view: false
 
-    app:
-      security:
-        jwt:
-          secret: ${JWT_SECRET}
-          expiration-ms: 3600000
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration-ms: 3600000
