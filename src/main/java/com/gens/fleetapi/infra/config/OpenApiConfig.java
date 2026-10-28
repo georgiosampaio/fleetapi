@@ -1,7 +1,10 @@
 package com.gens.fleetapi.infra.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +18,12 @@ public class OpenApiConfig {
                         .title("Fleet API")
                         .version("v1")
                         .description("Corporate fleet management API: vehicle registration, "
-                                + "lifecycle status control and standardized error responses."));
+                                + "lifecycle status control and standardized error responses."))
+                .components(new Components()
+                        .addSecuritySchemes("bearerAuth", new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }
