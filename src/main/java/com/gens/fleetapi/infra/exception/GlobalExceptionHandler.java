@@ -1,13 +1,16 @@
 package com.gens.fleetapi.infra.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 
 import java.time.Instant;
@@ -115,4 +118,46 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<StandardError> unreadableBody(HttpMessageNotReadableException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Malformed request",
+                        "Request body is missing or contains invalid JSON.",
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<StandardError> typeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Invalid parameter",
+                        "Parameter '" + e.getName() + "' has an invalid value.",
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<StandardError> invalidSortProperty(PropertyReferenceException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Invalid parameter",
+                        "Invalid sort property.",
+                        request.getRequestURI()
+                )
+        );
+    }
+
+
 }
