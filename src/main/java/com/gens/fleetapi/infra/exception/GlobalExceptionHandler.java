@@ -3,6 +3,7 @@ package com.gens.fleetapi.infra.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -43,6 +44,19 @@ public class GlobalExceptionHandler {
                         HttpStatus.BAD_REQUEST.value(),
                         "Validation error",
                         errorMessage,
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<StandardError> authentication(AuthenticationException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new StandardError(
+                        Instant.now(),
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "Authentication failed",
+                        "Invalid email or password.",
                         request.getRequestURI()
                 )
         );

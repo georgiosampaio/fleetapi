@@ -23,4 +23,6 @@ public record VehicleResponseDto (
                 vehicle.getStatus()
         );
     }
+
+
 }

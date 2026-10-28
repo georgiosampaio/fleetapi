@@ -4,6 +4,7 @@ import com.gens.fleetapi.domain.VehicleStatus;
 import com.gens.fleetapi.dto.request.VehicleRequestDto;
 import com.gens.fleetapi.dto.response.VehicleResponseDto;
 import com.gens.fleetapi.infra.exception.DuplicateResourceException;
+import com.gens.fleetapi.infra.security.JwtTokenService;
 import com.gens.fleetapi.service.VehicleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -60,6 +61,9 @@ class VehicleControllerTest {
 
     @MockitoBean
     private VehicleService vehicleService;
+
+    @MockitoBean
+    private JwtTokenService jwtTokenService;
 
     @Nested
     @DisplayName("POST /api/v1/vehicles")
